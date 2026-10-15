@@ -1,44 +1,95 @@
 def pemdas(equation) :
     list = []
     number = 0
+    number2 = 0
     last_character = ""
     valid_equation = True
     equation_remaining = True
+    place_value = 1
+    solution = 0
+    solution_list = []
     
     while valid_equation and equation_remaining:
-        
-        for i in range(len(equation)):
             
+        # Put the equation in a list
+        for i in range(len(equation)):
+            # 10*5
             if str(equation[i]) in "0,1,2,3,4,5,6,7,8,9" :
-                list.append(int(equation[i]))
+                number *= place_value
+                number += int(equation[i])
+                last_character = equation[i]
+                place_value *= 10
+                
             elif str(equation[i]) in "^,*,/,(,),+,-": 
+                list.append(number)
                 list.append(equation[i])
+                number = 0
+                place_value = 1
             else :
                 valid_equation = False
                 list = []
+            last_character = equation[i]
+        list.append(number)
                 
         equation_remaining = False
+    
+    # Parenthesis
+    for index, i in enumerate(list) :
         
-    for index, i in enumerate(list) :
         if i == "(" :
-            solution = parenthesis(list, index)
-    number = 0
+            number, index2 = parenthesis(list, index)
+            list = list[:index - 1] + [number] + list[index + index2 + 2:]
+            
+    # Exponents
     for index, i in enumerate(list) :
+        
+        if i == "^" :
+            number, number2 = numbers(list, index)
+            solution = exponents(list[index:], i, number, number2, index)
+            list = list[:index - 1] + [solution] + list[index + 2:]
+            continue
+    
+    # Multiplication and Division
+    for index, i in enumerate(list) :
+        
+        if i == "*" :
+            number, number2 = numbers(list, index)
+            solution = multiplication(number, number2)
+            list = list[:index - 1] + [solution] + list[index + 2:]
+            continue
+        
+        elif i == "/" :
+            number, number2 = numbers(list, index)
+            solution = division(number, number2)
+            list = list[:index - 1] + [solution] + list[index + 2:]
+            continue
+    
+    # Addition and Subtraction
+    for index, i in enumerate(list) :
+        
+            if i == "+" :
+                number, number2 = numbers(list, index)
+                solution = addition(number, number2)
+                list = list[:index - 1] + [solution] + list[index + 2:]
+                continue
+            
+            elif i == "-" :
+                number, number2 = numbers(list, index)
+                solution = subtraction(number, number2)
+                list = list[:index - 1] + [solution] + list[index + 2:]
+                continue
+        
+    """try :
         if str(i) in "0,1,2,3,4,5,6,7,8,9" :
             number = numbers(last_character, i, number)
+        
+    except :
         if i == "^" :
             last_character = i
             print(number)
             solution = exponents(list[index:], i, number, last_character, index)
-    number = 0
-    for index, i in enumerate(list) :
-        if str(i) in "0,1,2,3,4,5,6,7,8,9" :
-            number = numbers(last_character, i, number)
-        if i == "*" :
-            last_character = i
-            solution = multiplication(list[index:], number, last_character)
-    
-    
+    else :"""
+        
         
     """for index, i in enumerate(list) :
         
@@ -57,85 +108,60 @@ def pemdas(equation) :
         
     return solution
 
-def numbers(last_character, i, number) :
-    if str(last_character) not in "0,1,2,3,4,5,6,7,8,9" :
-        number += i
-        last_character = i
-    else :
-        number *= 10
-        number += i
-    print(number)
-    return number
+def numbers(list, index) :
+    
+    number = list[index - 1]
+    number2 = list[index + 1]
+    
+    return number, number2
                 
 def parenthesis(list, index) :
-    number = 0
                 
     for index2, j in enumerate(list[index:]) :
         
         if j == ")" :
-            new_list = []
-            simplified_segment = pemdas(list[index:index2])
-            for k in range(len(str(simplified_segment))) :
-                new_list.append(str(simplified_segment)[k])
-            list = list[:index] + new_list + list[index2:]
-            number = 0
-    return list
+            simplified_segment = pemdas(list[index + 1 : index2 + index])
+            
+    return simplified_segment, index2
 
-def exponents(list, i, number, last_character, index) :
-    exponent_found = False
-    exponent = 0
-    last_character = i
+def exponents(list, i, number, number2, index) :
+    """exponent = 0
         
     # Loops to find exponent
-    for j in range(len(list)) :
-        # Checks if there are parenthesis in the 
-        if j == "(" and not exponent_found:
-            list = parenthesis(list, index)
+    
+    if list[1] == "(":
+        list = parenthesis(list, index)
         
-        # Runs if exponent found and is a number
-        if str(list[j]) in "0,1,2,3,4,5,6,7,8,9" and not exponent_found:
-            # If 
-            if str(last_character) not in "0,1,2,3,4,5,6,7,8,9" : 
-                exponent += list[j]
-                last_character = list[j]
-            elif str(last_character) in "0,1,2,3,4,5,6,7,8,9" :
-                exponent *= 10
-                exponent += list[j]
-        elif str(list[j]) in "+,-,*,/": 
-            exponent_found = True
+    # Runs if exponent found and is a number
+    if isinstance(list, int):
+        exponent += list[i + 1]
     
-    print(number, exponent)
+    print(number, exponent)"""
     
-    number = number ** exponent
+    number = number ** number2
     
     return number
     
-def multiplication(list, number, last_character) :
-    number2 = 0
-    number2_found = False
+def multiplication(number, number2) :
     
-    for j in range(len(list)) :
-        # Runs if exponent found and is a number
-        if str(list[j]) in "0,1,2,3,4,5,6,7,8,9" and not number2_found:
-            # If 
-            if str(last_character) not in "0,1,2,3,4,5,6,7,8,9" : 
-                number2 += list[j]
-                last_character = list[j]
-            elif str(last_character) in "0,1,2,3,4,5,6,7,8,9" :
-                number2 *= 10
-                number2 += list[j]
-        elif str(list[j]) in "+,-,/": 
-            number2_found = True
     number = number * number2
+    
     return number
 
-"""def division() :
+def division(number, number2) :
     
+    number = number / number2
     
-def addition() :
+    return number
     
+def addition(number, number2) :
     
-def subtraction() :
+    number = number + number2
     
+    return number
     
-def """
+def subtraction(number, number2) :
+    
+    number = number - number2
+    
+    return number
